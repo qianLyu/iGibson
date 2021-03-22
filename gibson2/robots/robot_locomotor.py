@@ -268,6 +268,7 @@ class LocomotorRobot(BaseRobot):
         Apply policy action
         """
         real_action = self.policy_action_to_robot_action(action)
+        print(action, real_action)
         self.apply_robot_action(real_action)
 
     def calc_state(self):

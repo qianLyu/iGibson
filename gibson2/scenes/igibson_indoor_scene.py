@@ -233,19 +233,20 @@ class InteractiveIndoorScene(StaticIndoorScene):
                 joint_parent = joint_connecting_embedded_link.find(
                     "parent").attrib["link"]
 
-                self.add_object(category,
-                                model=model,
-                                model_path=model_path,
-                                filename=filename,
-                                bounding_box=bounding_box,
-                                scale=scale,
-                                object_name=object_name,
-                                joint_type=joint_type,
-                                position=joint_xyz,
-                                orientation_rpy=joint_rpy,
-                                joint_name=joint_name,
-                                joint_parent=joint_parent,
-                                in_rooms=in_rooms)
+                if category in ["walls", "floors", "ceilings"]:
+                    self.add_object(category,
+                                    model=model,
+                                    model_path=model_path,
+                                    filename=filename,
+                                    bounding_box=bounding_box,
+                                    scale=scale,
+                                    object_name=object_name,
+                                    joint_type=joint_type,
+                                    position=joint_xyz,
+                                    orientation_rpy=joint_rpy,
+                                    joint_name=joint_name,
+                                    joint_parent=joint_parent,
+                                    in_rooms=in_rooms)
             elif link.attrib["name"] != "world":
                 logging.error(
                     "iGSDF should only contain links that represent embedded URDF objects")

@@ -38,8 +38,8 @@ class Turtlebot(LocomotorRobot):
         Set up discrete action space
         """
         self.action_list = [[self.velocity, self.velocity], [-self.velocity, -self.velocity],
-                            [self.velocity * 0.5, -self.velocity * 0.5],
-                            [-self.velocity * 0.5, self.velocity * 0.5], [0, 0]]
+                            [self.velocity * 0.1, -self.velocity * 0.1],
+                            [-self.velocity * 0.1, self.velocity * 0.1], [0, 0]]
         self.action_space = gym.spaces.Discrete(len(self.action_list))
         self.setup_keys_to_action()
 
