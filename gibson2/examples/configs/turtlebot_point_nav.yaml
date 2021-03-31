@@ -14,8 +14,8 @@ texture_randomization_freq: null
 object_randomization_freq: null
 
 # robot
-robot: Turtlebot
-is_discrete: true
+robot: Locobot
+is_discrete: false #true
 velocity: 1.0
 
 # task
@@ -41,7 +41,7 @@ max_step: 500
 max_collisions_allowed: 500
 
 # misc config
-initial_pos_z_offset: 2.0 #0.1
+initial_pos_z_offset: 1.0 #0.1
 collision_ignore_link_a_ids: [1, 2, 3, 4]  # ignore collisions with these robot links
 
 # sensor spec
@@ -55,10 +55,10 @@ fisheye: false
 # image_height: 120
 image_width: 256
 image_height: 256
-vertical_fov: 45
+vertical_fov: 90
 # depth
-depth_low: 0.8
-depth_high: 13.5
+depth_low: 0.0
+depth_high: 10.0
 # scan
 # Hokuyo URG-04LX-UG01
 # https://www.hokuyo-aut.jp/search/single.php?serial=166

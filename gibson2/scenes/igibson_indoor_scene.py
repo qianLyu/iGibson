@@ -233,7 +233,7 @@ class InteractiveIndoorScene(StaticIndoorScene):
                 joint_parent = joint_connecting_embedded_link.find(
                     "parent").attrib["link"]
 
-                if category in ["walls", "floors", "ceilings"]:
+                if category in ["walls", "floors", "ceilings", "window"]:
                     self.add_object(category,
                                     model=model,
                                     model_path=model_path,
