@@ -40,55 +40,8 @@ import subprocess
 import yaml
 DEVICE = torch.device("cuda")
 
-# def load_model(weights_path, dim_actions): # DON'T CHANGE
-#     depth_256_space = SpaceDict({
-#         'depth': spaces.Box(low=0., high=1., shape=(256,256,1)),
-#         'pointgoal_with_gps_compass': spaces.Box(
-#             low=np.finfo(np.float32).min,
-#             high=np.finfo(np.float32).max,
-#             shape=(2,),
-#             dtype=np.float32,
-#         )
-#     })
-
-#     action_space = spaces.Box(
-#         np.array([float('-inf'),float('-inf')]), np.array([float('inf'),float('inf')])
-#     )
-#     action_distribution = 'gaussian'
-
-#     model = PointNavResNetPolicy(
-#         observation_space=depth_256_space,
-#         action_space=action_space,
-#         hidden_size=512,
-#         rnn_type='LSTM',
-#         num_recurrent_layers=2,
-#         backbone='resnet50',
-#         normalize_visual_inputs=False,
-#         action_distribution=action_distribution,
-#         dim_actions=dim_actions
-#     )
-#     model.to(torch.device(DEVICE))
-
-#     state_dict = OrderedDict()
-#     with open(weights_path, 'r') as f:
-#         state_dict = json.load(f)   
-#     # state_dict = torch.load(weights_path, map_location=DEVICE) 
-#     model.load_state_dict(
-#         {
-#             k[len("actor_critic.") :]: torch.tensor(v)
-#             for k, v in state_dict.items()
-#             if k.startswith("actor_critic.")
-#         }
-#     )
-
-#     return model
-
-WEIGHTS_PATH = 'habitat_cont_2/habitat_cont/d4_noslide_92.json'
-
-WAYPOINTS_YAML = 'evaluation/waypoints.yaml'
-
-GAUSSIAN, DISCRETE_4, DISCRETE_6 = False, False, False
-def load_model():
+WEIGHTS_PATH = 'habitat_cont_2/habitat_cont/gaussian_noslide_30deg_63_skyfail.json'
+def load_model(weights_path, dim_actions): # DON'T CHANGE
     depth_256_space = SpaceDict({
         'depth': spaces.Box(low=0., high=1., shape=(256,256,1)),
         'pointgoal_with_gps_compass': spaces.Box(
@@ -99,22 +52,10 @@ def load_model():
         )
     })
 
-    DISCRETE_4 = True
-
-    if GAUSSIAN:
-        action_space = spaces.Box(
-            np.array([float('-inf'),float('-inf')]), np.array([float('inf'),float('inf')])
-        )
-        action_distribution = 'gaussian'
-        dim_actions = 2
-    elif DISCRETE_4:
-        action_space = spaces.Discrete(4)
-        action_distribution = 'categorical'
-        dim_actions = 4
-    elif DISCRETE_6:
-        action_space = spaces.Discrete(6)
-        action_distribution = 'categorical'
-        dim_actions = 6
+    action_space = spaces.Box(
+        np.array([float('-inf'),float('-inf')]), np.array([float('inf'),float('inf')])
+    )
+    action_distribution = 'gaussian'
 
     model = PointNavResNetPolicy(
         observation_space=depth_256_space,
@@ -127,20 +68,80 @@ def load_model():
         action_distribution=action_distribution,
         dim_actions=dim_actions
     )
-    model.to(torch.device("cuda"))
+    model.to(torch.device(DEVICE))
 
-    data_dict = OrderedDict()
-    with open(WEIGHTS_PATH, 'r') as f:
-        data_dict = json.load(f)    
+    state_dict = OrderedDict()
+    with open(weights_path, 'r') as f:
+        state_dict = json.load(f)   
+    # state_dict = torch.load(weights_path, map_location=DEVICE) 
     model.load_state_dict(
         {
             k[len("actor_critic.") :]: torch.tensor(v)
-            for k, v in data_dict.items()
+            for k, v in state_dict.items()
             if k.startswith("actor_critic.")
         }
     )
 
     return model
+
+# WEIGHTS_PATH = 'habitat_cont_2/habitat_cont/gaussian_noslide_30deg_63_skyfail.json'
+
+# WAYPOINTS_YAML = 'evaluation/waypoints.yaml'
+
+# GAUSSIAN, DISCRETE_4, DISCRETE_6 = False, False, False
+# def load_model():
+#     depth_256_space = SpaceDict({
+#         'depth': spaces.Box(low=0., high=1., shape=(256,256,1)),
+#         'pointgoal_with_gps_compass': spaces.Box(
+#             low=np.finfo(np.float32).min,
+#             high=np.finfo(np.float32).max,
+#             shape=(2,),
+#             dtype=np.float32,
+#         )
+#     })
+
+#     DISCRETE_4 = True
+
+#     if GAUSSIAN:
+#         action_space = spaces.Box(
+#             np.array([float('-inf'),float('-inf')]), np.array([float('inf'),float('inf')])
+#         )
+#         action_distribution = 'gaussian'
+#         dim_actions = 2
+#     elif DISCRETE_4:
+#         action_space = spaces.Discrete(4)
+#         action_distribution = 'categorical'
+#         dim_actions = 4
+#     elif DISCRETE_6:
+#         action_space = spaces.Discrete(6)
+#         action_distribution = 'categorical'
+#         dim_actions = 6
+
+#     model = PointNavResNetPolicy(
+#         observation_space=depth_256_space,
+#         action_space=action_space,
+#         hidden_size=512,
+#         rnn_type='LSTM',
+#         num_recurrent_layers=2,
+#         backbone='resnet50',
+#         normalize_visual_inputs=False,
+#         action_distribution=action_distribution,
+#         dim_actions=dim_actions
+#     )
+#     model.to(torch.device("cuda"))
+
+#     data_dict = OrderedDict()
+#     with open(WEIGHTS_PATH, 'r') as f:
+#         data_dict = json.load(f)    
+#     model.load_state_dict(
+#         {
+#             k[len("actor_critic.") :]: torch.tensor(v)
+#             for k, v in data_dict.items()
+#             if k.startswith("actor_critic.")
+#         }
+#     )
+
+#     return model
 
 def to_tensor(v): # DON'T CHANGE
     if torch.is_tensor(v):
@@ -193,8 +194,8 @@ class iGibsonEnv(BaseEnv):
             'initial_pos_z_offset', 0.1)
         # s = 0.5 * G * (t ** 2)
         drop_distance = 0.5 * 9.8 * (self.action_timestep ** 2)
-        assert drop_distance < self.initial_pos_z_offset, \
-            'initial_pos_z_offset is too small for collision checking'
+        # assert drop_distance < self.initial_pos_z_offset, \
+        #     'initial_pos_z_offset is too small for collision checking'
 
         # ignore the agent's collision with these body ids
         self.collision_ignore_body_b_ids = set(
@@ -596,17 +597,17 @@ if __name__ == '__main__':
                         help='which mode for simulation (default: headless)')
     args = parser.parse_args()
 
-    # model = load_model(
-    #     weights_path = 'habitat_cont_2/habitat_cont/d4_noslide_92.json', #'habitat_cont_2/habitat_cont/gaussian_noslide_30deg_63_skyfail.json',
-    #     dim_actions = 1
-    # )
-    model = load_model()
+    model = load_model(
+        weights_path = WEIGHTS_PATH,
+        dim_actions = 2
+    )
+    # model = load_model()
     model = model.eval()
 
     env = iGibsonEnv(config_file=args.config,
                      mode=args.mode,
-                     action_timestep=1.0 / 10.0,
-                     physics_timestep=1.0 / 40.0)
+                     action_timestep=10.0 / 10.0,
+                     physics_timestep=1.0 / 240.0)
 
     step_time_list = []
     # for episode in range(100):
@@ -636,14 +637,14 @@ if __name__ == '__main__':
         device=DEVICE,
     )
 
-    prev_actions = torch.zeros(num_processes, 1, device=DEVICE)
+    prev_actions = torch.zeros(num_processes, 2, device=DEVICE)
     not_done_masks = torch.zeros(num_processes, 1, device=DEVICE)
 
     for episode in range(100):
         print('Episode: {}'.format(episode))
         start = time.time()
         state1 = env.reset()
-        for _ in range(150):  # 10 seconds
+        for _ in range(400):  # 10 seconds
             state = OrderedDict()
             state['depth'] = state1['depth']
             state['pointgoal_with_gps_compass'] = state1['task_obs'][:2]
@@ -670,27 +671,28 @@ if __name__ == '__main__':
                 )
 
             prev_actions.copy_(action)
-            action1 = np.array(action.cpu()[0])[0]
-            if action1 == 0:
-                action1 = np.array([4])
-            elif action1 == 1:
-                action1 = np.array([0])
-            elif action1 == 2:
-                action1 = np.array([3])
-            elif action1 == 3:
-                action1 = np.array([2])
-            state1, reward, done, _ = env.step(action1)
 
-            # move_amount = -torch.tanh(action[0][0]).item()
-            # turn_amount = torch.tanh(action[0][1]).item()
-            # action1 = np.array([-0.1*turn_amount, 0.1*turn_amount])
+            # action1 = np.array(action.cpu()[0])[0]
+            # if action1 == 0:
+            #     action1 = np.array([4])
+            # elif action1 == 1:
+            #     action1 = np.array([0])
+            # elif action1 == 2:
+            #     action1 = np.array([3])
+            # elif action1 == 3:
+            #     action1 = np.array([2])
             # state1, reward, done, _ = env.step(action1)
-            # action1 = np.array([1.0*abs(move_amount), 1.0*abs(move_amount)])
-            # state1, reward, done, _ = env.step(action1)
-            # action1 = np.array([move_amount, 0.1 * turn_amount])
-            # state1, reward, done, _ = env.step(action1)
+
+            move_amount = -torch.tanh(action[0][0]).item()
+            turn_amount = torch.tanh(action[0][1]).item()
+            move_amount = (move_amount+1.)/2.
+            action1 = np.array([ 0.25 * move_amount, 0.16 * turn_amount])
+            print(action1)
+            state1, reward, done, _ = env.step(action1)
             print('reward', reward)
             print('dis', state1['task_obs'][:2])
+
+            not_done_masks = torch.ones(num_processes, 1, device=DEVICE)
             if done:
                 break
         print('Episode finished after {} timesteps, took {} seconds.'.format(
