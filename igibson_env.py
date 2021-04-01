@@ -608,7 +608,7 @@ if __name__ == '__main__':
 
     env = iGibsonEnv(config_file=args.config,
                      mode=args.mode,
-                     device_idx=os.environ['CUDA_VISIBLE_DEVICES'],
+                     device_idx=int(os.environ['CUDA_VISIBLE_DEVICES']),
                      action_timestep=10.0 / 10.0,
                      physics_timestep=1.0 / 240.0)
 
