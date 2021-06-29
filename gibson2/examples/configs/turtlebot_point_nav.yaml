@@ -1,6 +1,6 @@
 # scene
 scene: igibson
-scene_id: Rs_int
+scene_id: Merom_0_int
 build_graph: true
 load_texture: false
 pybullet_load_texture: false
@@ -41,21 +41,27 @@ max_step: 500
 max_collisions_allowed: 500
 
 # misc config
-initial_pos_z_offset: 1.0 #0.1
+initial_pos_z_offset: 0.1 #1.0 #0.1
 collision_ignore_link_a_ids: [1, 2, 3, 4]  # ignore collisions with these robot links
 
 # sensor spec
 #output: [task_obs, rgb, depth, scan]
-output: [task_obs, depth]
+output: [task_obs, rgb, depth]
 # image
 # ASUS Xtion PRO LIVE
 # https://www.asus.com/us/3D-Sensor/Xtion_PRO_LIVE
 fisheye: false
 # image_width: 160
 # image_height: 120
-image_width: 256
-image_height: 256
-vertical_fov: 90
+
+# image_width: 256
+# image_height: 256
+# vertical_fov: 90
+
+image_width: 320
+image_height: 180
+vertical_fov: 42.5 #69.4
+
 # depth
 depth_low: 0.0
 depth_high: 10.0

@@ -40,12 +40,11 @@ import subprocess
 import yaml
 DEVICE = torch.device("cuda")
 
-# WEIGHTS_PATH = 'habitat_cont_2/habitat_cont/gaussian_noslide_30deg_63_skyfail.json'
-WEIGHTS_PATH = '/coc/pskynet3/nyokoyama3/aug26/hablabhotswap/gaussian_noslide_30deg_63_skyfail.json'
+WEIGHTS_PATH = '/nethome/qluo49/iGibsonChallenge2021/ckpt.9.json'
 
 def load_model(weights_path, dim_actions): # DON'T CHANGE
     depth_256_space = SpaceDict({
-        'depth': spaces.Box(low=0., high=1., shape=(256,256,1)),
+        'depth': spaces.Box(low=0., high=1., shape=(180,320,1)),
         'pointgoal_with_gps_compass': spaces.Box(
             low=np.finfo(np.float32).min,
             high=np.finfo(np.float32).max,
@@ -59,13 +58,16 @@ def load_model(weights_path, dim_actions): # DON'T CHANGE
     )
     action_distribution = 'gaussian'
 
+    # action_space = spaces.Discrete(4)
+    # action_distribution = 'categorical'
+
     model = PointNavResNetPolicy(
         observation_space=depth_256_space,
         action_space=action_space,
         hidden_size=512,
         rnn_type='LSTM',
         num_recurrent_layers=2,
-        backbone='resnet50',
+        backbone='resnet18',
         normalize_visual_inputs=False,
         action_distribution=action_distribution,
         dim_actions=dim_actions
@@ -85,6 +87,58 @@ def load_model(weights_path, dim_actions): # DON'T CHANGE
     )
 
     return model
+
+def observations_to_image(observation):
+
+    egocentric_view = []
+    if "rgb" in observation:
+        observation_size = observation["rgb"].shape[0]
+        egocentric_view.append(observation["rgb"][:, :, :3])
+
+# WEIGHTS_PATH = '/coc/pskynet3/nyokoyama3/aug26/hablabhotswap/gaussian_noslide_30deg_63_skyfail.json'
+
+# def load_model(weights_path, dim_actions): # DON'T CHANGE
+#     depth_256_space = SpaceDict({
+#         'depth': spaces.Box(low=0., high=1., shape=(256,256,1)),
+#         'pointgoal_with_gps_compass': spaces.Box(
+#             low=np.finfo(np.float32).min,
+#             high=np.finfo(np.float32).max,
+#             shape=(2,),
+#             dtype=np.float32,
+#         )
+#     })
+
+#     action_space = spaces.Box(
+#         np.array([float('-inf'),float('-inf')]), np.array([float('inf'),float('inf')])
+#     )
+#     action_distribution = 'gaussian'
+
+#     model = PointNavResNetPolicy(
+#         observation_space=depth_256_space,
+#         action_space=action_space,
+#         hidden_size=512,
+#         rnn_type='LSTM',
+#         num_recurrent_layers=2,
+#         backbone='resnet50',
+#         normalize_visual_inputs=False,
+#         action_distribution=action_distribution,
+#         dim_actions=dim_actions
+#     )
+#     model.to(torch.device(DEVICE))
+
+#     state_dict = OrderedDict()
+#     with open(weights_path, 'r') as f:
+#         state_dict = json.load(f)   
+#     # state_dict = torch.load(weights_path, map_location=DEVICE) 
+#     model.load_state_dict(
+#         {
+#             k[len("actor_critic.") :]: torch.tensor(v)
+#             for k, v in state_dict.items()
+#             if k.startswith("actor_critic.")
+#         }
+#     )
+
+#     return model
 
 # WEIGHTS_PATH = 'habitat_cont_2/habitat_cont/gaussian_noslide_30deg_63_skyfail.json'
 
@@ -586,6 +640,14 @@ class iGibsonEnv(BaseEnv):
         return state
 
 
+ACTION_DIM = 2
+LINEAR_VEL_DIM = 0
+ANGULAR_VEL_DIM = 1
+
+num_processes = 1
+
+index = 0
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -609,7 +671,7 @@ if __name__ == '__main__':
     env = iGibsonEnv(config_file=args.config,
                      mode=args.mode,
                      device_idx=int(os.environ['CUDA_VISIBLE_DEVICES']),
-                     action_timestep=10.0 / 10.0,
+                     action_timestep=1.0 / 10.0,
                      physics_timestep=1.0 / 240.0)
 
     step_time_list = []
@@ -643,7 +705,7 @@ if __name__ == '__main__':
     prev_actions = torch.zeros(num_processes, 2, device=DEVICE)
     not_done_masks = torch.zeros(num_processes, 1, device=DEVICE)
 
-    for episode in range(100):
+    for episode in range(30):
         print('Episode: {}'.format(episode))
         start = time.time()
         state1 = env.reset()
@@ -686,11 +748,16 @@ if __name__ == '__main__':
             #     action1 = np.array([2])
             # state1, reward, done, _ = env.step(action1)
 
-            move_amount = -torch.tanh(action[0][0]).item()
-            turn_amount = torch.tanh(action[0][1]).item()
+            move_amount = torch.clip(action[0][0], min=-1, max=1).item()
+            turn_amount = torch.clip(action[0][1], min=-1, max=1).item()
             move_amount = (move_amount+1.)/2.
-            action1 = np.array([ 0.25 * move_amount, 0.16 * turn_amount])
-            print(action1)
+            action1 = np.array([ move_amount, turn_amount])
+
+            # move_amount = -torch.tanh(action[0][0]).item()
+            # turn_amount = torch.tanh(action[0][1]).item()
+            # move_amount = (move_amount+1.)/2.
+            # action1 = np.array([ 0.25 * move_amount, 0.16 * turn_amount])
+            # print(action1)
             state1, reward, done, _ = env.step(action1)
             print('reward', reward)
             print('dis', state1['task_obs'][:2])
