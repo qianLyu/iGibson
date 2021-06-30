@@ -16,7 +16,9 @@ object_randomization_freq: null
 # robot
 robot: Locobot
 is_discrete: false #true
-velocity: 1.0
+velocity: 0.5 #1.0
+linear_velocity: 0.5
+angular_velocity: 1.5707963267948966
 
 # task
 task: point_nav_random
