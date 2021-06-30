@@ -10,7 +10,7 @@
 # should_open_all_doors: true
 
 scene: igibson
-scene_id: Ihlen_1_int #Rs_int
+scene_id: Merom_0_int #Rs_int
 load_scene_episode_config: false
 scene_episode_config_name: null
 build_graph: true
