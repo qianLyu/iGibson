@@ -10,7 +10,7 @@
 # should_open_all_doors: true
 
 scene: igibson
-scene_id: Wainscott_0_int #Rs_int
+scene_id: Pomaria_0_int #Wainscott_0_int #Rs_int
 load_scene_episode_config: false
 scene_episode_config_name: null
 build_graph: true
