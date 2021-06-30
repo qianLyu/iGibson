@@ -1,6 +1,6 @@
 # scene
 scene: igibson
-scene_id: Merom_0_int
+scene_id: Rs_int
 build_graph: true
 load_texture: false
 pybullet_load_texture: false
