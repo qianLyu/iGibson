@@ -10,7 +10,7 @@ from gibson2.sensors.scan_sensor import ScanSensor
 from gibson2.sensors.vision_sensor import VisionSensor
 from gibson2.robots.robot_base import BaseRobot
 from gibson2.external.pybullet_tools.utils import stable_z_on_aabb
-from gibson2.sensors.bump_sensor import BumpSensor
+# from gibson2.sensors.bump_sensor import BumpSensor
 
 from transforms3d.euler import euler2quat
 from collections import OrderedDict
@@ -32,6 +32,7 @@ import torch
 from gym import spaces
 from gym.spaces.dict_space import Dict as SpaceDict
 from PIL import Image
+import matplotlib.image as mp
 
 import time
 import cv2
@@ -695,25 +696,33 @@ if __name__ == '__main__':
     # Will have to change this:
     #goal_location = np.array([float(goal_list_x[i]), float(goal_list_y[i]) ], dtype=np.float32)
 
-    test_recurrent_hidden_states = torch.zeros(
-        model.net.num_recurrent_layers,
-        num_processes,
-        512,
-        device=DEVICE,
-    )
-
-    prev_actions = torch.zeros(num_processes, 2, device=DEVICE)
-    not_done_masks = torch.zeros(num_processes, 1, device=DEVICE)
+    res = []
 
     for episode in range(30):
+        test_recurrent_hidden_states = torch.zeros(
+            model.net.num_recurrent_layers,
+            num_processes,
+            512,
+            device=DEVICE,
+        )
+
+        prev_actions = torch.zeros(num_processes, 2, device=DEVICE)
+        not_done_masks = torch.zeros(num_processes, 1, device=DEVICE)
+
         print('Episode: {}'.format(episode))
         start = time.time()
         state1 = env.reset()
-        for _ in range(400):  # 10 seconds
+        for _ in range(500):  # 10 seconds
             state = OrderedDict()
             state['depth'] = state1['depth']
             state['pointgoal_with_gps_compass'] = state1['task_obs'][:2]
             state = [state]
+
+            # index += 1
+            # frame = observations_to_image(state1)
+            # root = f'/nethome/qluo49/iGibsonChallenge2021/pictures/{index}.png'
+            # mp.imsave(root,frame)
+
             batch = defaultdict(list)
             #print(state)
             for obs in state:
@@ -759,12 +768,15 @@ if __name__ == '__main__':
             # action1 = np.array([ 0.25 * move_amount, 0.16 * turn_amount])
             # print(action1)
             state1, reward, done, _ = env.step(action1)
-            print('reward', reward)
-            print('dis', state1['task_obs'][:2])
 
             not_done_masks = torch.ones(num_processes, 1, device=DEVICE)
             if done:
                 break
-        print('Episode finished after {} timesteps, took {} seconds.'.format(
-            env.current_step, time.time() - start))
+        res.append(state1['task_obs'][:2])
+        # print('reward', reward)
+        # print('dis', state1['task_obs'][:2])
+        # print('Episode finished after {} timesteps, took {} seconds.'.format(
+        #     env.current_step, time.time() - start))
+    for m in range(30):
+        print(m, res[m])
     env.close()
