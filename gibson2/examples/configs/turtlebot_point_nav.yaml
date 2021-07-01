@@ -1,28 +1,28 @@
 # scene
-scene: igibson
-scene_id: Rs_int
-build_graph: true
-load_texture: true #false
-pybullet_load_texture: true #false
-trav_map_type: no_obj
-trav_map_resolution: 0.1
-trav_map_erosion: 2
-should_open_all_doors: false #true
-
 # scene: igibson
-# scene_id: Beechwood_0_int #Pomaria_0_int #Rs_int
-# load_scene_episode_config: false
-# scene_episode_config_name: null
+# scene_id: Rs_int
 # build_graph: true
-# load_texture: true
-# pybullet_load_texture: true
-# trav_map_type: with_obj
+# load_texture: true #false
+# pybullet_load_texture: true #false
+# trav_map_type: no_obj
 # trav_map_resolution: 0.1
-# trav_map_default_resolution: 0.1
-# trav_map_erosion: 6
-# should_open_all_doors: false
-# not_load_object_categories: [door, carpet]
-# texture_scale: 0.5
+# trav_map_erosion: 2
+# should_open_all_doors: false #true
+
+scene: igibson
+scene_id: Rs_int #Beechwood_0_int #Pomaria_0_int #Rs_int
+load_scene_episode_config: false
+scene_episode_config_name: null
+build_graph: true
+load_texture: true
+pybullet_load_texture: true
+trav_map_type: with_obj
+trav_map_resolution: 0.1
+trav_map_default_resolution: 0.1
+trav_map_erosion: 6
+should_open_all_doors: false
+not_load_object_categories: [door, carpet]
+texture_scale: 0.5
 
 # domain randomization
 texture_randomization_freq: null
