@@ -4,8 +4,8 @@
 # threedfront_dataset_path: data/threedfront_dataset
 # cubicasa_dataset_path: data/cubicasa_dataset
 
-assets_path: /srv/datasets/gibson2/data/assets
+assets_path: /srv/share3/qluo3/assets #/srv/datasets/gibson2/data/assets
 cubicasa_dataset_path: /srv/datasets/gibson2/data/assetscubicasa_dataset
 g_dataset_path: /srv/datasets/gibson2/data/g_dataset
-ig_dataset_path: /srv/datasets/gibson2/data/ig_dataset
+ig_dataset_path: /srv/share3/qluo3/ig_dataset # /srv/datasets/gibson2/data/ig_dataset
 threedfront_dataset_path: /srv/datasets/gibson2/data/threedfront_dataset
