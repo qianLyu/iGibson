@@ -6,7 +6,7 @@ load_texture: true #false
 pybullet_load_texture: true #false
 trav_map_type: with_obj #no_obj
 trav_map_resolution: 0.1
-trav_map_erosion: 2
+trav_map_erosion: 6
 should_open_all_doors: false #true
 
 # scene: igibson
